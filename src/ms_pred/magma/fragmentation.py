@@ -8,8 +8,8 @@ from collections import Counter, defaultdict
 from hashlib import blake2b
 from typing import Tuple, List
 from rdkit import Chem
-from ms_pred import common
-
+from .. import common  # <<-- use relative import to stay in the same package tree
+from ..common.chem_utils import canonical_mol_from_inchi  # direct import
 
 TYPEW = {
     Chem.rdchem.BondType.names["AROMATIC"]: 2,
@@ -52,13 +52,15 @@ class FragmentEngine(object):
                 return
             self.inchi = Chem.MolToInchi(self.mol)
             if not mol_str_canonicalized:
-                self.mol = common.canonical_mol_from_inchi(self.inchi)
+                # was: self.mol = common.canonical_mol_from_inchi(self.inchi)
+                self.mol = canonical_mol_from_inchi(self.inchi)  # direct call
                 self.smiles = Chem.MolToSmiles(self.mol)  # canonical smiles
                 self.mol = Chem.MolFromSmiles(self.smiles)  # always use canonical smiles for mols
 
         elif mol_str_type == "inchi":
             self.inchi = mol_str
-            self.mol = common.canonical_mol_from_inchi(self.inchi)  # inchi must be canonicalized
+            # was: self.mol = common.canonical_mol_from_inchi(self.inchi)
+            self.mol = canonical_mol_from_inchi(self.inchi)  # inchi must be canonicalized
             if self.mol is None:
                 return
             self.smiles = Chem.MolToSmiles(self.mol)
@@ -94,11 +96,9 @@ class FragmentEngine(object):
         self.full_weight = np.sum(self.atom_weights_h)
 
         # Get bonds and indices
-        # Note: Unlike MAGMa original, we do not score bonds
         self.bonded_atoms = [[] for _ in self.atom_symbols]
         self.bonded_types = [[] for _ in self.atom_symbols]
 
-        # For numpy use in numba algo
         self.bonded_atoms_np = np.zeros((self.natoms, MAX_ATOM_BONDS), dtype=int)
         self.bonded_types_np = np.zeros((self.natoms, MAX_ATOM_BONDS), dtype=int)
         self.num_bonds_np = np.zeros(self.natoms, dtype=int)
@@ -145,10 +145,7 @@ class FragmentEngine(object):
         self.max_broken_bonds = max_broken_bonds
         self.max_tree_depth = max_tree_depth
 
-        # Define a list for all possible mass shifts on each atom accounting
-        # for masses
-        # Shift factor for inverse
-        # int((self.shift_buckets.shape[0] - 1) / 2)
+        # Define a list for all possible mass shifts on each atom accounting for masses
         self.shift_buckets = (
             np.arange(self.max_broken_bonds * 2 + 1) - self.max_broken_bonds
         )
