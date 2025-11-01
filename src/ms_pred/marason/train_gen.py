@@ -136,7 +136,7 @@ def train_model():
 
     magma_folder = kwargs["magma_folder"]
     num_workers = kwargs.get("num_workers", 0)
-    magma_tree_h5 = common.HDF5Dataset(data_dir / f"{magma_folder}/magma_tree.hdf5")
+    magma_tree_h5 = common.HDF5Dataset(data_dir / f"{magma_folder}/magma_tree_new.hdf5")
     name_to_json = {Path(i).stem: i for i in magma_tree_h5.get_all_names()}
 
     pe_embed_k = kwargs["pe_embed_k"]
@@ -148,14 +148,14 @@ def train_model():
     # Build out frag datasets
     train_dataset = dag_data.GenDataset(
         train_df,
-        magma_h5=data_dir / f"{magma_folder}/magma_tree.hdf5",
+        magma_h5=data_dir / f"{magma_folder}/magma_tree_new.hdf5",
         magma_map=name_to_json,
         num_workers=num_workers,
         tree_processor=tree_processor,
     )
     val_dataset = dag_data.GenDataset(
         val_df,
-        magma_h5=data_dir / f"{magma_folder}/magma_tree.hdf5",
+        magma_h5=data_dir / f"{magma_folder}/magma_tree_new.hdf5",
         magma_map=name_to_json,
         num_workers=num_workers,
         tree_processor=tree_processor,
@@ -163,7 +163,7 @@ def train_model():
 
     test_dataset = dag_data.GenDataset(
         test_df,
-        magma_h5=data_dir / f"{magma_folder}/magma_tree.hdf5",
+        magma_h5=data_dir / f"{magma_folder}/magma_tree_new.hdf5",
         magma_map=name_to_json,
         num_workers=num_workers,
         tree_processor=tree_processor,

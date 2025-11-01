@@ -598,7 +598,8 @@ class GenDataset(DAGDataset):
             instruments = [j["instrument"] for j in input_list]
             instruments = torch.FloatTensor(instruments)
 
-        collision_engs = [float(j["collision_energy"]) for j in input_list]
+        # collision_engs = [float(j["collision_energy"]) for j in input_list]
+        collision_engs = [float(j["collision_energy"]) if j["collision_energy"] is not None else 20.0 for j in input_list]
         collision_engs = torch.FloatTensor(collision_engs)
 
         precursor_mzs = [j["precursor"] for j in input_list]
